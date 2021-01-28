@@ -112,6 +112,12 @@
         "kubernetesVersion": {
             "defaultValue": "1.19.3",
             "type": "string"
+        },
+        "subdomainName": {
+            "type": "String",
+            "metadata": {
+                "description": "The name used for the azure subdomain in order to create the dns entry for app gateway public ip"
+            }
         }
     },
     "variables": {
@@ -139,7 +145,9 @@
         "agwName": "[concat( 'apw-', variables('clusterName')) ]",
         "apwResourceId": "[resourceId('Microsoft.Network/applicationGateways', variables('agwName'))]",
 
-        "keyVaultName": "[concat( 'kv-', variables('clusterName'))]"
+        "keyVaultName": "[concat( 'kv-', variables('clusterName'))]",
+
+        "fqdnAppGateway": "[concat( parameters('subdomainName'),'.', parameters('location'),'.cloudapp.azure.com')]"
     },
     "resources": [
         {
@@ -482,7 +490,7 @@
                             "sslCertificate": {
                                 "id": "[concat(variables('apwResourceId'), '/sslCertificates/', variables('agwName'), '-ssl-certificate')]"
                             },
-                            "hostName": "bicycle.contoso.com",
+                            "hostName": "[concat(variables('fqdnAppGateway'))]",
                             "hostNames": [
                             ],
                             "requireServerNameIndication": true
@@ -657,7 +665,8 @@
             "apiVersion": "2018-04-16",
             "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.OperationsManagement/solutions',variables('containerInsightsSolutionName'))]"
+                "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]",
+                "[resourceId('Microsoft.OperationsManagement/solutions', variables('containerInsightsSolutionName'))]"
             ],
             "properties": {
                 "description": "Alert on pod Failed phase.",
