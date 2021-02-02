@@ -63,7 +63,7 @@ Previously you have configured [workload prerequisites](./07-workload-prerequisi
      provider: azure
      parameters:
        usePodIdentity: "true"
-       keyvaultName: "${KEYVAULT_NAME_BU0001A0042_03}"
+       keyvaultName: $KEYVAULT_NAME_BU0001A0042_03
        objects:  |
          array:
            - |
@@ -116,7 +116,7 @@ Previously you have configured [workload prerequisites](./07-workload-prerequisi
    export TRAEFIK_USER_ASSIGNED_IDENTITY_RESOURCE_ID_BU0001A0042_04=$(az deployment group show --resource-group rg-bu0001a0042-04 -n cluster-stamp --query properties.outputs.aksIngressControllerUserManageIdentityResourceId.value -o tsv)
    export TRAEFIK_USER_ASSIGNED_IDENTITY_CLIENT_ID_BU0001A0042_04=$(az deployment group show --resource-group rg-bu0001a0042-04 -n cluster-stamp --query properties.outputs.aksIngressControllerUserManageIdentityClientId.value -o tsv)
 
-   cat <<EOF | kubectl apply --context $AKS_CLUSTER_NAME_BU0001A0042_04 -f -
+   cat <<EOF | kubectl create --context $AKS_CLUSTER_NAME_BU0001A0042_04 -f -
    apiVersion: "aadpodidentity.k8s.io/v1"
    kind: AzureIdentity
    metadata:
@@ -137,7 +137,7 @@ Previously you have configured [workload prerequisites](./07-workload-prerequisi
      selector: traefik-ingress-controller
    EOF
 
-   cat <<EOF | kubectl apply --context $AKS_CLUSTER_NAME_BU0001A0042_04 -f -
+   cat <<EOF | kubectl create --context $AKS_CLUSTER_NAME_BU0001A0042_04 -f -
    apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
    kind: SecretProviderClass
    metadata:
@@ -147,7 +147,7 @@ Previously you have configured [workload prerequisites](./07-workload-prerequisi
      provider: azure
      parameters:
        usePodIdentity: "true"
-       keyvaultName: "${KEYVAULT_NAME_BU0001A0042_04}"
+       keyvaultName: $KEYVAULT_NAME_BU0001A0042_04
        objects:  |
          array:
            - |
@@ -158,10 +158,10 @@ Previously you have configured [workload prerequisites](./07-workload-prerequisi
              objectName: traefik-ingress-internal-aks-ingress-contoso-com-tls
              objectAlias: tls.key
              objectType: secret
-       tenantId: "${TENANT_ID}"
+       tenantId: $TENANTID_AZURERBAC
    EOF
 
-   kubectl apply -f https://raw.githubusercontent.com/mspnp/aks-secure-baseline/main/workload/traefik-04.yaml --context $AKS_CLUSTER_NAME_BU0001A0042_04
+   kubectl create -f https://raw.githubusercontent.com/mspnp/aks-secure-baseline/main/workload/traefik-04.yaml --context $AKS_CLUSTER_NAME_BU0001A0042_04
    kubectl wait --namespace a0042 --for=condition=ready pod --selector=app.kubernetes.io/name=traefik-ingress-ilb --timeout=90s --context $AKS_CLUSTER_NAME_BU0001A0042_04
    ```
 
